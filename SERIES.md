@@ -32,23 +32,31 @@ Every project has the same shape, so a reader who knows one knows all of them.
 
 ## Starting a project
 
-One block; only the first four lines change. The three TEST_ values may stay "" (CI then runs without a
-reference service) and be filled later in `.github/workflows/test.yml` + `publish.yml`. s3rds's values as the example:
+One block, no comments inside (zsh does not accept `#` in pasted commands). Only the first four lines change;
+the three TEST_ values may stay "" (CI then runs without a reference service) and be filled later in
+`.github/workflows/test.yml` + `publish.yml`:
+
+| variable | meaning | s3rds |
+|---|---|---|
+| NAME | repo name | `s3rds` |
+| TEST_DEPS | pip packages the tests need besides pytest boto3: the real service's client + our optional deps | `"pymysql sqlglot"` |
+| TEST_CONTAINER | the real service's Docker container (mysql / redis / postgres) | `"mysql"` |
+| TEST_DSN | the env var the compat tests read | `"MYSQL_DSN=mysql://root:test@127.0.0.1:3306/compat"` |
 
 ```bash
-NAME=xxx                 # repo name                                                     s3rds
-TEST_DEPS=""             # pip packages the tests need besides pytest boto3:
-                         #   the real service's client + our own optional deps          "pymysql sqlglot"
-TEST_CONTAINER=""        # the real service's Docker container (mysql / redis / postgres)   mysql
-TEST_DSN=""              # the env var the compat tests read                             "MYSQL_DSN=mysql://root:test@127.0.0.1:3306/compat"
+NAME=xxx
+TEST_DEPS=""
+TEST_CONTAINER=""
+TEST_DSN=""
 cd ~/repo-private
 gh repo create cloudformer/$NAME --public --template cloudformer/redefine-aws-serverless --clone
 gh repo edit cloudformer/$NAME --add-topic redefine-aws-serverless
-gh api -X PUT repos/cloudformer/$NAME/environments/pypi >/dev/null      # for trusted publishing
-rm $NAME/SERIES.md                                                     # template-only file
+gh api -X PUT repos/cloudformer/$NAME/environments/pypi >/dev/null
+rm $NAME/SERIES.md
 git -C $NAME mv client/project client/$NAME && sed -i '' "s/\"project\"/\"$NAME\"/" $NAME/client/pyproject.toml
 sed -i '' "s|install: \"pytest boto3\"|install: \"pytest boto3 $TEST_DEPS\"|; s|compose-service: \"\"|compose-service: \"$TEST_CONTAINER\"|; s|test-env: \"\"|test-env: \"$TEST_DSN\"|" $NAME/.github/workflows/test.yml $NAME/.github/workflows/publish.yml
 git -C $NAME add -A && git -C $NAME commit -m "from template" && git -C $NAME push
+gh run list -R cloudformer/$NAME --limit 1
 ```
 
 ### Manual steps (everything the block cannot do)
