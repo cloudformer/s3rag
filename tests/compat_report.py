@@ -20,7 +20,7 @@ CONFIG = {
         ("reference", "<project>.<client> vs <replaces>", "test_reference",
          lambda: versions.get("reference") or "<replaces> (not run)"),
     ],
-    "version": lambda: "<project> " + __import__("project").__version__,
+    "version": lambda: os.environ["PACKAGE"] + " " + __import__(os.environ["PACKAGE"]).__version__,
     "categories": ["Basics", "Data", "Queries", "Errors", "Metadata", "Unsupported", "General"],
 }
 

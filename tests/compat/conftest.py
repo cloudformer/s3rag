@@ -14,7 +14,8 @@ import pytest
 
 import lambda_function as lf
 import compat_report
-from project import client as ours_client   # rename with the package
+import importlib
+ours_client = importlib.import_module(os.environ["PACKAGE"] + ".client")   # <package>.<client>; rename `client` with the submodule
 
 AUTH = "Basic " + base64.b64encode(b"admin:pw").decode()
 
