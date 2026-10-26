@@ -40,7 +40,7 @@ cd ~/repo-private
 gh repo create cloudformer/$NAME --public --template cloudformer/redefine-aws-serverless --clone
 gh repo edit cloudformer/$NAME --add-topic redefine-aws-serverless
 gh api -X PUT repos/cloudformer/$NAME/environments/pypi >/dev/null      # for trusted publishing
-rm $NAME/SERIES.md $NAME/.github/workflows/reusable-*.yml              # template-only files
+rm $NAME/SERIES.md                                                     # template-only file
 git -C $NAME mv client/project client/$NAME && sed -i '' "s/\"project\"/\"$NAME\"/" $NAME/client/pyproject.toml
 git -C $NAME add -A && git -C $NAME commit -m "from template" && git -C $NAME push
 ```
@@ -50,13 +50,11 @@ git -C $NAME add -A && git -C $NAME commit -m "from template" && git -C $NAME pu
 | when | where | what |
 |---|---|---|
 | once, template repo | GitHub → redefine-aws-serverless → Settings → General | "Template repository" on (or `gh repo edit --template`) |
-| once, template repo | Settings → Actions → General → Access | "Accessible from repositories owned by cloudformer" (or the `gh api … actions/permissions/access` line) |
 | per project | pypi.org → Your account → Publishing | add a **pending** publisher: PyPI project `$NAME`, owner `cloudformer`, repo `$NAME`, workflow `publish.yml`, environment `pypi` (PyPI has no API for this) |
 | per project | the clone | fill the three `with:` values in `.github/workflows/test.yml` and `publish.yml`; replace `<placeholders>` (`grep -rn "<" --include=*.md --include=*.py --include=*.tf --include=*.yml .`); fill `src/server/`, `terraform/`, `cloudformation/`, `tests/compat/` — CLAUDE.md carries the principles |
 | per project | AWS | deploy once to get the console URL (`terraform -chdir=terraform apply -var-file=my.json`) and check the production engine's limits (e.g. the Lambda runtime's SQLite version) |
 | per release | the clone | bump the version in `client/pyproject.toml` and `client/$NAME/__init__.py`, CHANGELOG entry, commit, `git tag vX.Y.Z && git push --tags` |
 
-The workflows are referenced (`uses: cloudformer/redefine-aws-serverless/...@main`; the template repo's
-Actions access setting allows repositories owned by cloudformer), so CI changes are made here once. The other
+The workflows are referenced (`uses: cloudformer/redefine-aws-serverless-workflow/...@main`, a public repo), so CI changes are made there once. The other
 shared files (`tests/compat_report.py`, the HTTP helpers in `src/server/lambda_function.py`, the console
 shell) are copied: each project evolves on its own; improvements worth sharing are ported back here by hand.

@@ -1,5 +1,5 @@
 name: tests
-# Every push. The logic lives in the template repo (reusable-test.yml); change it there once.
+# Every push. The logic lives in cloudformer/redefine-aws-serverless-workflow (public, so public projects can call it); change it there once.
 # Project: fill the three values, e.g.
 #   install: "pytest boto3 pymysql sqlglot"
 #   compose-service: "mysql"            (a service in tests/compat/docker-compose.yml)
@@ -10,7 +10,7 @@ on:
   pull_request:
 jobs:
   test:
-    uses: cloudformer/redefine-aws-serverless/.github/workflows/reusable-test.yml@main
+    uses: cloudformer/redefine-aws-serverless-workflow/.github/workflows/reusable-test.yml@main
     with:
       install: "pytest boto3"
       compose-service: ""
