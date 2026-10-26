@@ -7,7 +7,7 @@ This (private) repository is the template every project starts from ("Use this t
 | Replaces | Idle floor / month | Built on | Project | Usage | Status |
 |---|---|---|---|---|---|
 | RDS / Aurora Serverless | ~$14–45 | S3 + Lambda | [**s3rds**](https://github.com/cloudformer/s3rds) | `from s3rds import pymysql` · `sqlite` · `psycopg2` | 0.1.2 on PyPI |
-| Redis / ElastiCache Serverless | ~$90 | DynamoDB | **dynamoredis** | `from dynamoredis import redis` | next |
+| Redis / ElastiCache Serverless | ~$90 (1 GB minimum) | DynamoDB | **dynamoredis** | `from dynamoredis import redis` | next |
 | Airflow / MWAA | ~$360 | Lambda + EventBridge + Step Functions | **lambdaflow** | `from lambdaflow import airflow` | planned |
 | Redshift Serverless | ~$3/h once it wakes | S3 + DuckDB | **s3shift** | `from s3shift import redshift_connector` | planned |
 | OpenSearch Serverless | ~$350 | S3 + SQLite FTS5 (on s3rds) | **s3search** | `from s3search import opensearchpy` | planned |
