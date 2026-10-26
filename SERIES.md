@@ -30,6 +30,17 @@ Every project has the same shape, so a reader who knows one knows all of them.
 | Release | `git tag vX.Y.Z && git push --tags` → tests → build → PyPI trusted publishing; the tag must equal the version |
 | Docs | README (EN + ZH): architecture image, comparison table, quick start (deploy → console → connect), compatibility, guarantees, who this is for, layout, releasing, series footer |
 
+## Shared vs project-specific (the rule)
+
+- **Identical across projects → lives in the template or the workflow repo and is referenced, never
+  copied**: CI (`uses: cloudformer/redefine-aws-serverless-workflow/...@main`). Differences between
+  projects go in as variables / inputs (`with:` values), never as edited copies. One place to change.
+- **Different per project → lives only in the project**: routes, the console's views, the driver's API,
+  the backend resources, the feature list. Nobody syncs these.
+- **Identical today but copied** (console shell, Lambda HTTP helpers, `compat_report.py`): kept in the
+  template as the source; a fix is made in the template and ported to the projects by hand. Promote to a
+  referenced piece once the sync becomes a chore.
+
 ## Starting a project
 
 One block, no comments inside (zsh does not accept `#` in pasted commands). Only the first four lines change;
