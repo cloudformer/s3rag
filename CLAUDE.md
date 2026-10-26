@@ -57,6 +57,23 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
 - **No maintenance work by design**: no generated code to keep in sync, no abstractions for one caller,
   standard library over dependencies.
 
+## CI and release (what to edit, what not to)
+
+- `.github/workflows/test.yml` and `publish.yml` are thin callers of the public repo
+  `cloudformer/redefine-aws-serverless-workflow`. In this project edit only their three `with:` values:
+  `install` (pip packages the tests need besides pytest boto3: the real service's client + our optional
+  deps, e.g. `"pytest boto3 pymysql sqlglot"`), `compose-service` (the container in
+  `tests/compat/docker-compose.yml`: mysql / redis / postgres) and `test-env` (the env var the compat tests
+  read, e.g. `"MYSQL_DSN=mysql://root:test@127.0.0.1:3306/compat"`). They may be empty until the compat
+  suite exists. Never put CI logic here; change it in the workflow repo once for the whole series.
+- `tests/compat/docker-compose.yml` defines mysql, redis and postgres; only the named one starts. Another
+  reference service: add it there.
+- The package name is read from `client/pyproject.toml` by `tests/conftest.py` (`PACKAGE`); nothing else
+  hard-codes it.
+- Release: bump `version` in `client/pyproject.toml` and `__version__` in `client/<package>/__init__.py`,
+  CHANGELOG entry, commit, `git tag vX.Y.Z && git push --tags`. Once per package Frank adds the PyPI
+  trusted publisher (owner cloudformer, this repo, `publish.yml`, environment `pypi`).
+
 ## Layout (do not move things)
 
 ```
