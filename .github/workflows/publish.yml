@@ -1,0 +1,13 @@
+name: publish
+# git tag vX.Y.Z && git push --tags -> tests -> build client/ -> PyPI (trusted publishing).
+# The logic lives in the template repo (reusable-publish.yml). Same three values as test.yml.
+on:
+  push:
+    tags: ["v*"]
+jobs:
+  publish:
+    uses: cloudformer/redefine-aws-serverless/.github/workflows/reusable-publish.yml@main
+    with:
+      install: "pytest boto3"
+      compose-service: ""
+      test-env: ""
