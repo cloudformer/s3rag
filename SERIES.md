@@ -7,7 +7,7 @@ This (private) repository is the template every project starts from ("Use this t
 | Replaces | Idle floor / month | Built on | Project | Usage | Status |
 |---|---|---|---|---|---|
 | RDS / Aurora Serverless | ~$14–45 | S3 + Lambda | [**s3rds**](https://github.com/cloudformer/s3rds) | `from s3rds import pymysql` · `sqlite` · `psycopg2` | 0.1.2 on PyPI |
-| Redis / ElastiCache Serverless | ~$90 | DynamoDB | **pyredis** | `from pyredis import redis` | next |
+| Redis / ElastiCache Serverless | ~$90 | DynamoDB | **dynamoredis** | `from dynamoredis import redis` | next |
 | Airflow / MWAA | ~$360 | Lambda + EventBridge + Step Functions | **lambdaflow** | `from lambdaflow import airflow` | planned |
 | Redshift Serverless | ~$3/h once it wakes | S3 + DuckDB | **s3shift** | `from s3shift import redshift_connector` | planned |
 | OpenSearch Serverless | ~$350 | S3 + SQLite FTS5 (on s3rds) | **s3search** | `from s3search import opensearchpy` | planned |
@@ -52,6 +52,7 @@ cd ~/repo-private
 gh repo create cloudformer/$NAME --public --template cloudformer/redefine-aws-serverless --clone
 gh repo edit cloudformer/$NAME --add-topic redefine-aws-serverless
 gh api -X PUT repos/cloudformer/$NAME/environments/pypi >/dev/null
+gh secret set PYPI_TOKEN -R cloudformer/$NAME --body "$(awk '/password/{print $3; exit}' ~/.pypirc)"
 rm $NAME/SERIES.md
 git -C $NAME mv client/project client/$NAME && sed -i '' "s/\"project\"/\"$NAME\"/" $NAME/client/pyproject.toml
 sed -i '' "s|install: \"pytest boto3\"|install: \"pytest boto3 $TEST_DEPS\"|; s|compose-service: \"\"|compose-service: \"$TEST_CONTAINER\"|; s|test-env: \"\"|test-env: \"$TEST_DSN\"|" $NAME/.github/workflows/test.yml $NAME/.github/workflows/publish.yml
@@ -64,7 +65,7 @@ gh run list -R cloudformer/$NAME --limit 1
 | when | where | what |
 |---|---|---|
 | once, template repo | GitHub → redefine-aws-serverless → Settings → General | "Template repository" on (or `gh repo edit --template`) |
-| per project | pypi.org → Your account → Publishing | add a **pending** publisher: PyPI project `$NAME`, owner `cloudformer`, repo `$NAME`, workflow `publish.yml`, environment `pypi` (PyPI has no API for this) |
+| — | (nothing on pypi.org) | the block stores the account-wide API token from `~/.pypirc` as the repo secret `PYPI_TOKEN`; publish.yml uses it. Without the secret it falls back to trusted publishing, which needs a pending publisher on pypi.org |
 | per project | the clone | fill the three `with:` values in `.github/workflows/test.yml` and `publish.yml`; replace `<placeholders>` (`grep -rn "<" --include=*.md --include=*.py --include=*.tf --include=*.yml .`); fill `src/server/`, `terraform/`, `cloudformation/`, `tests/compat/` — CLAUDE.md carries the principles |
 | per project | AWS | deploy once to get the console URL (`terraform -chdir=terraform apply -var-file=my.json`) and check the production engine's limits (e.g. the Lambda runtime's SQLite version) |
 | per release | the clone | bump the version in `client/pyproject.toml` and `client/$NAME/__init__.py`, CHANGELOG entry, commit, `git tag vX.Y.Z && git push --tags` |

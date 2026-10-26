@@ -11,3 +11,4 @@ jobs:
       install: "pytest boto3"
       compose-service: ""
       test-env: ""
+    secrets: inherit
