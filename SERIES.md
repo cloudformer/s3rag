@@ -8,10 +8,10 @@ This (private) repository is the template every project starts from ("Use this t
 |---|---|---|---|---|---|
 | RDS / Aurora Serverless | ~$14–45 | S3 + Lambda | [**s3rds**](https://github.com/cloudformer/s3rds) | `from s3rds import pymysql` · `sqlite` · `psycopg2` | 0.1.2 on PyPI |
 | Redis / ElastiCache Serverless | ~$90 (1 GB minimum) | DynamoDB | [**dynamoredis**](https://github.com/cloudformer/dynamoredis) | `from dynamoredis import redis` | 0.1.0 on PyPI |
-| Airflow / MWAA | ~$360 | Lambda + EventBridge + Step Functions | **lambdaflow** | `from lambdaflow import airflow` | planned |
-| Redshift Serverless | ~$3/h once it wakes | S3 + DuckDB | **s3shift** | `from s3shift import redshift_connector` | planned |
-| OpenSearch Serverless | ~$350 | S3 + SQLite FTS5 (on s3rds) | **s3search** | `from s3search import opensearchpy` | planned |
-| Kafka / MSK Serverless | ~$550 | SQS | **sqskafka** | `from sqskafka import kafka` | planned |
+| Airflow / MWAA | ~$360 | Lambda + EventBridge + Step Functions | **lambdaflow** | `from lambdaflow import airflow` | after s3shift |
+| Redshift Serverless | ~$3/h once it wakes | Lambda + DuckDB over your real S3 and RDS data | **s3shift** | `from s3shift import redshift_connector` | next |
+| OpenSearch Serverless | ~$350 | S3 + SQLite FTS5 (on s3rds) | **s3search** | `from s3search import opensearchpy` | on hold — fits application search only; OpenSearch is mostly used for logs, which need high-rate ingest (see s3shift) |
+| Kafka / MSK Serverless | ~$550 | SQS | **sqskafka** | `from sqskafka import kafka` | on hold — SQS cannot give partitions, ordering or offset replay; expected fidelity too low |
 | DocumentDB (MongoDB) | ~$200 | SQLite JSON1 (on s3rds) | **s3mongo** | `from s3mongo import pymongo` | planned |
 | Amazon MQ (RabbitMQ) | ~$20–50 | SQS | **sqsmq** | `from sqsmq import pika` | planned |
 
