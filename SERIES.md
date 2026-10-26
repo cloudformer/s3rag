@@ -32,10 +32,11 @@ Every project has the same shape, so a reader who knows one knows all of them.
 
 ## Starting a project
 
-One block, run from `~/repo-private` (set NAME first):
+One block; only the first line changes:
 
 ```bash
-NAME=<project>
+NAME=xxx
+cd ~/repo-private
 gh repo create cloudformer/$NAME --public --template cloudformer/redefine-aws-serverless --clone
 gh repo edit cloudformer/$NAME --add-topic redefine-aws-serverless
 gh api -X PUT repos/cloudformer/$NAME/environments/pypi >/dev/null      # for trusted publishing
