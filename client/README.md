@@ -4,6 +4,8 @@
 <built on>, a Lambda Function URL as the endpoint, ≈ $0 when idle.** Part of
 [Redefine AWS Serverless](https://github.com/topics/redefine-aws-serverless).
 
+![<project> architecture](https://raw.githubusercontent.com/cloudformer/<project>/main/docs/architecture.svg)
+
 ```bash
 pip install <project>
 ```
