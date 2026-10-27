@@ -28,7 +28,7 @@
 
 ## Quick start
 
-### 1. Deploy (pick one)
+### 1. Deploy
 
 **Terraform**
 
@@ -40,7 +40,7 @@ terraform -chdir=terraform output                 # console_url
 terraform -chdir=terraform destroy -var-file=my.json   # tear everything down
 ```
 
-**CloudFormation** (AWS CLI only)
+**CloudFormation** (AWS CLI only; optional, from <version> — delete this block until it exists)
 
 ```bash
 cp cloudformation/example-params.json cloudformation/params.json
@@ -103,7 +103,7 @@ docker compose -f tests/compat/docker-compose.yml down
 src/server/       the service: lambda_function.py (HTTP API + console), index.html
 client/           the pip package <project>: <project>/<client>.py, pyproject.toml
 terraform/        deployment, option A
-cloudformation/   deployment, option B
+cloudformation/   deployment, option B (optional, after 0.1.0)
 tests/            regression suite; tests/compat/ compatibility suite, REPORT.md, TASKS.md
 ```
 

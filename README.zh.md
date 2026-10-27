@@ -28,7 +28,7 @@
 
 ## 快速开始
 
-### 1. 部署（二选一）
+### 1. 部署
 
 **Terraform**
 
@@ -40,7 +40,7 @@ terraform -chdir=terraform output                 # console_url
 terraform -chdir=terraform destroy -var-file=my.json   # 全部拆掉
 ```
 
-**CloudFormation**（只需要 AWS CLI）
+**CloudFormation**（只需要 AWS CLI；可选，从 <version> 起提供——在此之前删掉这一段）
 
 ```bash
 cp cloudformation/example-params.json cloudformation/params.json
@@ -103,7 +103,7 @@ docker compose -f tests/compat/docker-compose.yml down
 src/server/       服务本体:lambda_function.py(HTTP API + 控制台)、index.html
 client/           pip 包 <project>:<project>/<client>.py、pyproject.toml
 terraform/        部署方式 A
-cloudformation/   部署方式 B
+cloudformation/   部署方式 B（可选，0.1.0 之后）
 tests/            回归测试;tests/compat/ 兼容性测试、REPORT.md、TASKS.md
 ```
 
