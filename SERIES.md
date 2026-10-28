@@ -6,14 +6,32 @@ This (private) repository is the template every project starts from ("Use this t
 
 | Replaces | Idle floor / month | Built on | Project | Usage | Status |
 |---|---|---|---|---|---|
-| RDS / Aurora Serverless | ~$14–45 | S3 + Lambda | [**s3rds**](https://github.com/cloudformer/s3rds) | `from s3rds import pymysql` · `sqlite` · `psycopg2` | 0.1.2 on PyPI |
-| Redis / ElastiCache Serverless | ~$90 (1 GB minimum) | DynamoDB | [**dynamoredis**](https://github.com/cloudformer/dynamoredis) | `from dynamoredis import redis` | 0.1.0 on PyPI |
-| Airflow / MWAA | ~$360 | Lambda + EventBridge + Step Functions | **lambdaflow** | `from lambdaflow import airflow` | after s3shift |
-| Redshift Serverless | ~$3/h once it wakes | Lambda + DuckDB over your real S3 and RDS data | **s3shift** | `from s3shift import redshift_connector` | next |
+| RDS / Aurora Serverless | ~$14–45 | S3 + Lambda | [**s3rds**](https://github.com/cloudformer/s3rds) | `from s3rds import pymysql` · `sqlite` · `psycopg2` · SQLAlchemy | 0.2.0 on PyPI — always in the series |
+| Redis / ElastiCache Serverless | ~$90 (1 GB minimum) | DynamoDB | [**dynamoredis**](https://github.com/cloudformer/dynamoredis) | `from dynamoredis import redis` | 0.1.2 on PyPI — always in the series |
+| Airflow / MWAA | ~$360 | Lambda + EventBridge + Step Functions | [**lambdaflow**](https://github.com/cloudformer/lambdaflow) | `from lambdaflow import airflow` | 0.1.0 on PyPI — passes: Step Functions is pay-per-use, but a DAG is not a state machine (a rewrite) |
+| Redshift Serverless | ~$3/h once it wakes | Lambda + DuckDB over your real S3 and RDS data | [**s3shift**](https://github.com/cloudformer/s3shift) | `from s3shift import redshift_connector` | 0.1.1 on PyPI — reviewed, kept (Frank): the target is Redshift itself — redshift_connector and Redshift SQL, S3 files and RDS tables joined in place, no 60-second minimum per query; Athena covers only SQL over S3 |
+| DocumentDB (MongoDB) | ~$30 (Serverless, 0.5 DCU minimum) | SQLite JSON1 (on s3rds) | **s3mongo** | `from s3mongo import pymongo` | planned — passes: DynamoDB is pay-per-use, but leaving MongoDB's model for it is a rewrite |
+| Client VPN / Verified Access | ~$70–200 | IAM + Session Manager | [**ztna**](https://pypi.org/project/ztna/) | `pip install ztna` → `ztna ssm-session dev-bastion` | name reserved (0.0.1) |
 | OpenSearch Serverless | ~$350 | S3 + SQLite FTS5 (on s3rds) | **s3search** | `from s3search import opensearchpy` | on hold — fits application search only; OpenSearch is mostly used for logs, which need high-rate ingest (see s3shift) |
-| Kafka / MSK Serverless | ~$550 | SQS | **sqskafka** | `from sqskafka import kafka` | on hold — SQS cannot give partitions, ordering or offset replay; expected fidelity too low |
-| DocumentDB (MongoDB) | ~$200 | SQLite JSON1 (on s3rds) | **s3mongo** | `from s3mongo import pymongo` | planned |
-| Amazon MQ (RabbitMQ) | ~$20–50 | SQS | **sqsmq** | `from sqsmq import pika` | planned |
+| Kafka / MSK Serverless | ~$550 | SQS | **sqskafka** | `from sqskafka import kafka` | for review — fails checks 2 and 3: SQS / Kinesis on-demand are AWS's own pay-per-use streams |
+| Amazon MQ (RabbitMQ) | ~$20–50 | SQS | **sqsmq** | `from sqsmq import pika` | for review — fails checks 2 and 3: SQS is AWS's own pay-per-use queue; Celery takes it with one setting |
+
+## Before a project starts (the three checks)
+
+s3rds and dynamoredis are the series' core and are not re-examined. Every other candidate goes through all
+three checks before any code is written. A failed check does not drop it: the candidate goes to Frank with the
+reason, and Frank decides (build anyway, not built, or later). The Status column records the result and the
+decision:
+
+1. **AWS's own service bills while idle.** Look up its serverless option and any free tier first: if it
+   scales to zero (or a lasting free tier covers small use), there is nothing to rebuild.
+2. **No AWS pay-per-use service that the application can switch to with a small change.** If one exists
+   (SQS for a queue, Athena for SQL over S3), point users to it instead of imitating the old API on top of it.
+   A switch that means rewriting the data model or the code (SQL → DynamoDB, DAG → state machine) does not count.
+3. **Never dress an AWS pay-per-use service up as another product.** SQS, SNS, DynamoDB, Kinesis, Step
+   Functions and Athena are AWS's own serverless answer and the series' building blocks; translating one back
+   into another product's API (SQS as RabbitMQ or Kafka) adds nothing. A project rebuilds a service that bills
+   while idle, behind the client its users already have (pymysql, redis-py, Airflow, pymongo, redshift_connector).
 
 ## The standard
 
