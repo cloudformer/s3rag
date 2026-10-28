@@ -79,9 +79,10 @@ from <project> import <client>        # 以后换真服务:`import <client>`,其
 | ⛔ unsupported | 明确拒绝（`NotSupportedError`），绝不静默走样 |
 
 ```bash
-docker compose -f tests/compat/docker-compose.yml up -d <service>
-<ENV>=<dsn> python3 -m pytest tests -q
-docker compose -f tests/compat/docker-compose.yml down
+python3 -m pytest tests -q                 # 不碰 Docker：<replaces> 在跑就实时比对，否则 <退路>
+python3 -m pytest tests -q --docker up     # 在 Docker 里启动 <replaces>，等健康后测试；测完保持运行
+python3 -m pytest tests -q --docker run    # 同上，全部通过就关掉；有失败就保持运行并提示
+python3 -m pytest tests -q --docker down   # 同上，不管结果一律关掉
 ```
 
 ## 保证

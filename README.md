@@ -79,9 +79,10 @@ real <replaces> (Docker) and on <project>, comparing results, types and errors.
 | ⛔ unsupported | refused with `NotSupportedError` — never silently different |
 
 ```bash
-docker compose -f tests/compat/docker-compose.yml up -d <service>
-<ENV>=<dsn> python3 -m pytest tests -q
-docker compose -f tests/compat/docker-compose.yml down
+python3 -m pytest tests -q                 # leaves Docker alone: live if <replaces> is running, else <the fallback>
+python3 -m pytest tests -q --docker up     # starts <replaces> in Docker, waits until healthy, tests; keeps it running
+python3 -m pytest tests -q --docker run    # the same, then stops it if all passed (on a failure it keeps running)
+python3 -m pytest tests -q --docker down   # the same, then stops it whatever the result
 ```
 
 ## Guarantees

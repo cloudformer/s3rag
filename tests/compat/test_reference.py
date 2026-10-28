@@ -2,8 +2,11 @@
 
 One test = one feature; docstring "Category | Feature | note". The list only grows. Run with:
 
-    docker compose -f tests/compat/docker-compose.yml up -d <service>
-    REFERENCE_DSN=<dsn> python3 -m pytest tests -q
+    python3 -m pytest tests -q                 # Docker left alone: live if the service runs, else skipped
+    python3 -m pytest tests -q --docker up     # start, wait until healthy, test, keep running
+    python3 -m pytest tests -q --docker run    # ... stop if all passed
+    python3 -m pytest tests -q --docker down   # ... always stop
+    REFERENCE_DSN=<dsn> python3 -m pytest tests -q --aws <var-file>   # vs the deployed stack
     COMPAT_DRY=1 python3 -m pytest tests/compat -q -s      # project side only, no Docker
 """
 import pytest

@@ -5,6 +5,8 @@ its docstring is "Category | Feature | short note", an xfail marker's reason is 
 in TASKS.md that closes it), @pytest.mark.quirk + xfail = documented difference we do not imitate,
 @pytest.mark.unsupported = the project refuses it on purpose. Outcomes of the whole run are rendered at
 session end, with the actual diff for rows that fail unexpectedly.
+
+The reference service in Docker (the `--docker up | run | down` commands) lives in compat_docker.py.
 """
 import collections
 import datetime
@@ -22,11 +24,15 @@ CONFIG = {
     ],
     "version": lambda: os.environ["PACKAGE"] + " " + __import__(os.environ["PACKAGE"]).__version__,
     "categories": ["Basics", "Data", "Queries", "Errors", "Metadata", "Unsupported", "General"],
+    # Optional "Test scope" table at the top of REPORT.md: which test covers which business step.
+    # (business step, how it is tested, ["file.py::test_name", ...], still to do or None); status is computed.
+    # "scope": [("1. <step>", "<how>", ["test_server.py::test_routes_errors_and_timing"], None)],
 }
 
 features = {}   # nodeid -> {"suite", "feature", "gap", "unsupported", "quirk", "fail"}
 outcomes = {}   # nodeid -> verified | gap | regression | fixed | unsupported | quirk | not run
 versions = {}   # suite key -> reference version string (set by the compat conftest once connected)
+results = {}    # every nodeid -> passed | failed | skipped | xfailed (for the scope table)
 suite = {"passed": 0, "failed": 0, "skipped": 0, "xfailed": 0}
 
 STATUS = {"verified": "✅", "gap": "❌ gap", "regression": "🔴 regression", "fixed": "🟡 fixed",
@@ -71,6 +77,8 @@ def pytest_runtest_logreport(report):
             suite["xfailed"] += 1
         elif report.outcome in ("passed", "failed"):
             suite[report.outcome] += 1
+    if report.outcome == "failed" or report.when == "call" or (report.when == "setup" and report.outcome == "skipped"):
+        results[report.nodeid] = "xfailed" if hasattr(report, "wasxfail") else report.outcome
     if report.nodeid not in features:
         return
     if report.when == "setup" and report.outcome == "skipped":
@@ -87,7 +95,8 @@ def pytest_runtest_logreport(report):
             "gap" if report.outcome == "skipped" and xfail else
             "fixed" if report.outcome == "passed" and xfail else
             "unsupported" if report.outcome == "passed" and features[report.nodeid]["unsupported"] else
-            "verified" if report.outcome == "passed" else "regression")
+            "verified" if report.outcome == "passed" else
+            "not run" if report.outcome == "skipped" else "regression")   # pytest.skip() inside the test body
 
 
 def _open_tasks():
@@ -108,8 +117,31 @@ def _counts(kind):
     return pct + " · ".join(f"{n} {k}" for k, n in sorted(c.items()))
 
 
+def _scope():
+    def matches(spec):
+        file, name = spec.split("::")
+        return [n for n in results
+                if n.split("::")[0].endswith("/" + file) and n.split("::")[-1].split("[")[0] == name]
+    lines = ["## Test scope", "",
+             "What each business step is checked by. ✅ every listed test passed · 🔴 one failed · "
+             "⏭ some not run (filtered, or an Airflow outcome not recorded yet) · ⏳ still to do.", "",
+             "| Business step | How it is tested | Tests | Status |", "|---|---|---|---|"]
+    for step, how, tests, todo in CONFIG["scope"]:
+        ran = [r for spec in tests for r in matches(spec)]
+        got = [results[n] for n in ran]
+        passed = got.count("passed") + got.count("xfailed")      # a quirk's expected failure is its pass
+        status = ("🔴 " if "failed" in got else "✅ " if got and passed == len(got) else "⏭ ") + \
+                 f"{passed}/{len(got)}" if tests else ""
+        if todo:
+            status = (status + " · " if status else "") + f"⏳ {todo}"
+        names = "<br>".join(f"`{s.split('::')[1]}`" for s in tests) or "—"
+        lines.append(f"| {step} | {how} | {names} | {status} |")
+    return lines + [""]
+
+
 def render():
-    order = {"verified": 0, "fixed": 1, "regression": 2, "gap": 3, "quirk": 4, "unsupported": 5, "not run": 6}
+    import compat_aws
+    order ={"verified": 0, "fixed": 1, "regression": 2, "gap": 3, "quirk": 4, "unsupported": 5, "not run": 6}
     cats = CONFIG["categories"]
     lines = [
         f"# {CONFIG['title']} · [tasks](TASKS.md)", "",
@@ -120,9 +152,9 @@ def render():
         f"Whole test run: **{suite['passed']} passed**, {suite['failed']} failed, {suite['xfailed']} expected failures "
         f"(known gaps), {suite['skipped']} skipped — regression suite (`tests/`) and compatibility suite (`tests/compat/`) together.", "",
         f"Open tasks: {_open_tasks()} — see [TASKS.md](TASKS.md).", "",
-    ]
+    ] + (_scope() if CONFIG.get("scope") else [])
     for kind, title, _match, ref in CONFIG["suites"]:
-        lines += [f"## {title} — reference: {ref() if callable(ref) else ref}", "", _counts(kind), "", LEGEND, ""]
+        lines += [f"## {title} ({compat_aws.target()}) — reference: {ref() if callable(ref) else ref}", "", _counts(kind), "", LEGEND, ""]
         groups = {}
         for nid, f in features.items():
             if f["suite"] != kind:

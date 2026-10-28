@@ -1,7 +1,10 @@
 """Compatibility harness: the same operations on the real <replaces> (Docker) and on the project, compared.
 
+The project side is the Lambda handler called in-process, or the deployed stack with --aws <var-file>
+(tests/compat_aws.py).
+
 Template. Keep the shape: a `real_<ref>` fixture that skips without the DSN env var (or runs the project
-side only with COMPAT_DRY=1), an `ours` fixture that calls the server in-process, and a `pair` fixture
+side only with COMPAT_DRY=1), an `ours` fixture that calls the server in-process (or the deployed stack with --aws), and a `pair` fixture
 whose `run(steps)` executes each step on both sides and asserts the outcomes are equal. A test is one
 feature; its docstring "Category | Feature | note" is the report row.
 """
@@ -13,6 +16,7 @@ from dataclasses import dataclass
 import pytest
 
 import lambda_function as lf
+import compat_aws      # --aws: the deployed stack instead of the in-process handler
 import compat_report
 import importlib
 ours_client = importlib.import_module(os.environ["PACKAGE"] + ".client")   # <package>.<client>; rename `client` with the submodule
@@ -41,17 +45,28 @@ def real():
     dsn = os.environ.get("REFERENCE_DSN")          # e.g. REDIS_URL=redis://127.0.0.1:6379/0
     if not dsn and os.environ.get("COMPAT_DRY"):
         return None                                # dry run: project side only, print what it does
-    if not dsn:
-        pytest.skip("set REFERENCE_DSN (see tests/compat/docker-compose.yml) to run against the real service")
+    if not dsn:   # compat_report sets it when the container runs: python3 -m pytest tests -q --docker up | run | down
+        pytest.skip("the reference service is not running: python3 -m pytest tests -q --docker up | run | down")
     client = pytest.importorskip("<client>")       # the real client library
     conn = client.connect(dsn)                     # <- adapt
     compat_report.versions["reference"] = "<replaces> <version> (Docker)"   # <- query it once
     return conn
 
 
+@pytest.fixture(scope="session")
+def deployed(request):
+    """--aws: the deployed stack (terraform output + the variable file it was deployed with). Give the tests
+    one database / key prefix of their own there and empty it here once per run, as the Docker reference
+    starts empty. None without --aws."""
+    return compat_aws.endpoint(request.config, url="console_url", user="user", password="password")   # <- adapt
+
+
 @pytest.fixture
-def ours(monkeypatch):
-    """The project's client with its HTTP layer calling the Lambda handler in-process."""
+def ours(deployed, monkeypatch):
+    """The project's client: against the deployed Lambda URL with --aws, otherwise with its HTTP layer
+    calling the Lambda handler in-process (a Python function, no Lambda, no HTTP)."""
+    if deployed:
+        return ours_client.connect(host=deployed["url"], user=deployed["user"], password=deployed["password"])
     c = ours_client.connect(host="in-process.test", user="admin", password="pw")
 
     def call(method, path, payload=None):
