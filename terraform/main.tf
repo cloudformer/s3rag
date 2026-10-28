@@ -47,6 +47,7 @@ resource "aws_lambda_function" "server" {
   function_name    = "${var.name}-lambda"
   role             = aws_iam_role.lambda.arn
   runtime          = "python3.12"
+  architectures    = [var.architecture]
   handler          = "lambda_function.lambda_handler"
   filename         = data.archive_file.server.output_path
   source_code_hash = data.archive_file.server.output_base64sha256

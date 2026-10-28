@@ -61,6 +61,17 @@ variable "endpoint_auth" {
   }
 }
 
+variable "architecture" {
+  description = "The architecture this deployment runs: arm64 (Graviton, ~20% cheaper) or x86_64; both are built and tested"
+  type        = string
+  default     = "arm64"
+
+  validation {
+    condition     = contains(["arm64", "x86_64"], var.architecture)
+    error_message = "architecture must be arm64 or x86_64."
+  }
+}
+
 variable "console" {
   description = "Serve the built-in web console at GET /. false = API only."
   type        = bool
