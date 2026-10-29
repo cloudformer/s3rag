@@ -1,20 +1,36 @@
 # Redefine AWS Serverless
 
-AWS "serverless" services that still bill while idle, rebuilt on primitives that cost ≈ $0 when idle.
+AWS "serverless" services that still bill while idle, rebuilt on primitives that cost ≈ $0 when idle — and
+existing applications that normally need a server all day, run unchanged on the same primitives.
 All projects: [github.com/topics/redefine-aws-serverless](https://github.com/topics/redefine-aws-serverless).
 This (private) repository is the template every project starts from ("Use this template"); the public face of the series is the topic page, later a site.
 
+## infra-serverless — an AWS service rebuilt, behind the client its users already have
+
 | Replaces | Idle floor / month | Built on | Project | Usage | Status |
 |---|---|---|---|---|---|
-| RDS / Aurora Serverless | ~$14–45 | S3 + Lambda | [**s3rds**](https://github.com/cloudformer/s3rds) | `from s3rds import pymysql` · `sqlite` · `psycopg2` · SQLAlchemy | 0.2.0 on PyPI — always in the series |
+| RDS / Aurora Serverless | ~$14–45 | S3 + Lambda | [**s3rds**](https://github.com/cloudformer/s3rds) | `from s3rds import pymysql` · `sqlite` · `psycopg2` · SQLAlchemy · Django | 0.2.1 on PyPI — always in the series |
 | Redis / ElastiCache Serverless | ~$90 (1 GB minimum) | DynamoDB | [**dynamoredis**](https://github.com/cloudformer/dynamoredis) | `from dynamoredis import redis` | 0.1.2 on PyPI — always in the series |
 | Airflow / MWAA | ~$360 | Lambda + EventBridge + Step Functions | [**lambdaflow**](https://github.com/cloudformer/lambdaflow) | `from lambdaflow import airflow` | 0.1.0 on PyPI — passes: Step Functions is pay-per-use, but a DAG is not a state machine (a rewrite) |
 | Redshift Serverless | ~$3/h once it wakes | Lambda + DuckDB over your real S3 and RDS data | [**s3shift**](https://github.com/cloudformer/s3shift) | `from s3shift import redshift_connector` | 0.1.1 on PyPI — reviewed, kept (Frank): the target is Redshift itself — redshift_connector and Redshift SQL, S3 files and RDS tables joined in place, no 60-second minimum per query; Athena covers only SQL over S3 |
 | DocumentDB (MongoDB) | ~$30 (Serverless, 0.5 DCU minimum) | SQLite JSON1 (on s3rds) | **s3mongo** | `from s3mongo import pymongo` | planned — passes: DynamoDB is pay-per-use, but leaving MongoDB's model for it is a rewrite |
 | Client VPN / Verified Access | ~$70–200 | IAM + Session Manager | [**ztna**](https://pypi.org/project/ztna/) | `pip install ztna` → `ztna ssm-session dev-bastion` | name reserved (0.0.1) |
+| Network Firewall | ~$290 per AZ ($0.395/h per endpoint) | — | [**ngfw**](https://pypi.org/project/ngfw/) | — | name reserved (0.0.1) — not reviewed |
+| Cloud WAN (SD-WAN) | ~$365 per core network edge ($0.50/h) | — | [**sdwan**](https://pypi.org/project/sdwan/) | — | name reserved (0.0.1) — not reviewed |
 | OpenSearch Serverless | ~$350 | S3 + SQLite FTS5 (on s3rds) | **s3search** | `from s3search import opensearchpy` | on hold — fits application search only; OpenSearch is mostly used for logs, which need high-rate ingest (see s3shift) |
 | Kafka / MSK Serverless | ~$550 | SQS | **sqskafka** | `from sqskafka import kafka` | for review — fails checks 2 and 3: SQS / Kinesis on-demand are AWS's own pay-per-use streams |
 | Amazon MQ (RabbitMQ) | ~$20–50 | SQS | **sqsmq** | `from sqsmq import pika` | for review — fails checks 2 and 3: SQS is AWS's own pay-per-use queue; Celery takes it with one setting |
+
+## app-serverless — an existing application, its code unchanged, on Lambda; ≈ $0 when idle
+
+| Application | Usually runs on (idle floor / month) | Built on | Project | Only change | Status |
+|---|---|---|---|---|---|
+| Vault | EC2 (3 + ALB for HA) or HCP Vault Dedicated (~$450) | Lambda + S3 + KMS | [**lambdavault**](https://github.com/cloudformer/lambdavault) | vault CLI · Terraform provider · UI — only `VAULT_ADDR` changes | 0.1.0 on PyPI — passes: Secrets Manager is pay-per-use ($0.40 per secret), but leaving the Vault API (policies, auth methods, engines) for it is a rewrite |
+| Healthchecks (cron monitoring) | a VM or container + its database, all day | Lambda + EventBridge + s3rds (its database) | **lambdachecks** | ping URLs, API and UI — only the host changes | planned — Django 6.1.2 on s3rds' Django backend; `sendalerts` (a 2-second polling loop) becomes one EventBridge run per minute |
+
+An app-serverless project ships no driver and no console of its own: the application's own clients and UI are the
+interface, and the compatibility suite compares the original (in Docker) with the project. The three checks below
+apply with "AWS's own service" read as "the application's hosted or pay-per-use offering".
 
 ## Before a project starts (the three checks)
 
