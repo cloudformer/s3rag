@@ -6,6 +6,12 @@ locals {
 # e.g. aws_s3_bucket, aws_dynamodb_table, aws_sqs_queue ... and the IAM statements that allow the
 # Lambda to use them (add to the policy below).
 
+# ---------------- logs: the Lambda's group, kept 14 days ----------------
+resource "aws_cloudwatch_log_group" "server" {
+  name              = "/aws/lambda/${var.project_name}-lambda"
+  retention_in_days = 14
+}
+
 # ---------------- IAM: one role, least privilege ----------------
 resource "aws_iam_role" "lambda" {
   name = local.role
@@ -27,8 +33,8 @@ resource "aws_iam_role_policy" "lambda" {
     Statement = [
       {
         Effect   = "Allow"
-        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
-        Resource = "arn:aws:logs:*:*:*"
+        Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "${aws_cloudwatch_log_group.server.arn}:*"
       },
       # { Effect = "Allow", Action = ["dynamodb:GetItem", ...], Resource = aws_dynamodb_table.x.arn },
     ]
@@ -61,6 +67,8 @@ resource "aws_lambda_function" "server" {
       CONSOLE   = var.console ? "1" : "0"
     }
   }
+
+  depends_on = [aws_cloudwatch_log_group.server]
 }
 
 # function_url_auth = NONE:    public URL, our user/password is the only gate. A public URL

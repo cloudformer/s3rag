@@ -53,7 +53,8 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
    PyPI cannot resolve relative paths.
 8. **Terraform only, every command from the repo root** (`terraform -chdir=terraform …`). `cloudformation/`
    holds only a README ("not supported yet"); a template comes back once the project is stable and someone
-   needs it — less to maintain. `example.json` is committed, real variable files are gitignored. Least-privilege IAM. Destroy must work.
+   needs it — less to maintain. `example.json` is committed, real variable files are gitignored.
+   Every Lambda gets its own log group (14 days, created by Terraform; IAM may write only there, no `CreateLogGroup`). Least-privilege IAM. Destroy must work.
    Everything built for a Lambda (Linux wheels, container images) is built for both arm64 and x86_64, and
    both are tested; a deployment runs one, `var.architecture`, default arm64 (~20% cheaper). Switching it
    needs no rebuild.
