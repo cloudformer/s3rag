@@ -1,5 +1,5 @@
 locals {
-  role = "${var.name}-lambda-role"
+  role = "${var.project_name}-lambda-role"
 }
 
 # ---------------- the project's AWS primitive(s) go here ----------------
@@ -44,7 +44,7 @@ data "archive_file" "server" {
 }
 
 resource "aws_lambda_function" "server" {
-  function_name    = "${var.name}-lambda"
+  function_name    = "${var.project_name}-lambda"
   role             = aws_iam_role.lambda.arn
   runtime          = "python3.12"
   architectures    = [var.architecture]
@@ -56,19 +56,19 @@ resource "aws_lambda_function" "server" {
 
   environment {
     variables = {
-      USER_NAME = var.user
-      PASSWORD  = var.password
+      USER_NAME = var.console_auth_username
+      PASSWORD  = var.console_auth_password
       CONSOLE   = var.console ? "1" : "0"
     }
   }
 }
 
-# endpoint_auth = NONE:    public URL, our user/password is the only gate. A public URL
-#                          needs BOTH permission statements (AWS requirement since Oct 2025).
-# endpoint_auth = AWS_IAM: AWS verifies SigV4 + IAM first; no public permissions are created.
+# function_url_auth = NONE:    public URL, our user/password is the only gate. A public URL
+#                              needs BOTH permission statements (AWS requirement since Oct 2025).
+# function_url_auth = AWS_IAM: AWS verifies SigV4 + IAM first; no public permissions are created.
 resource "aws_lambda_function_url" "server" {
   function_name      = aws_lambda_function.server.function_name
-  authorization_type = var.endpoint_auth
+  authorization_type = var.function_url_auth
   cors {
     allow_origins = ["*"]
     allow_methods = ["*"]
@@ -77,7 +77,7 @@ resource "aws_lambda_function_url" "server" {
 }
 
 resource "aws_lambda_permission" "url" {
-  count                  = var.endpoint_auth == "NONE" ? 1 : 0
+  count                  = var.function_url_auth == "NONE" ? 1 : 0
   statement_id           = "AllowPublicFunctionUrl"
   action                 = "lambda:InvokeFunctionUrl"
   function_name          = aws_lambda_function.server.function_name
@@ -86,7 +86,7 @@ resource "aws_lambda_permission" "url" {
 }
 
 resource "aws_lambda_permission" "url_invoke" {
-  count                    = var.endpoint_auth == "NONE" ? 1 : 0
+  count                    = var.function_url_auth == "NONE" ? 1 : 0
   statement_id             = "AllowPublicFunctionUrlInvoke"
   action                   = "lambda:InvokeFunction"
   function_name            = aws_lambda_function.server.function_name

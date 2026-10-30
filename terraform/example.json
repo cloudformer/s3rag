@@ -4,11 +4,12 @@
   "assume_role_arn": "",
 
   "env": "dev",
-  "name": "<project>",
+  "project_name": "<project>",
 
-  "user": "admin",
-  "password": "CHANGE-ME",
+  "console": true,
+  "function_url_auth": "NONE",
+  "console_auth_username": "admin",
+  "console_auth_password": "CHANGE-ME",
 
-  "endpoint_auth": "NONE",
-  "console": true
+  "architecture": "arm64"
 }

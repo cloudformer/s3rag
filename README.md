@@ -33,7 +33,7 @@
 **Terraform**
 
 ```bash
-cp terraform/example.json terraform/my.json      # set aws_profile, env, user, password
+cp terraform/example.json terraform/my.json      # set aws_profile, env, console_auth_username, console_auth_password
 terraform -chdir=terraform init
 terraform -chdir=terraform apply -var-file=my.json
 terraform -chdir=terraform output                 # console_url
@@ -52,7 +52,7 @@ aws cloudformation deploy --template-file /tmp/<project>.yaml --stack-name <proj
 
 ### 2. Open the console
 
-Open `console_url` in a browser, sign in with `user` / `password`. <what the console shows and does>.
+Open `console_url` in a browser, sign in with `console_auth_username` / `console_auth_password`. <what the console shows and does>.
 
 ### 3. Connect from code
 

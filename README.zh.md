@@ -33,7 +33,7 @@
 **Terraform**
 
 ```bash
-cp terraform/example.json terraform/my.json      # 改 aws_profile、env、user、password
+cp terraform/example.json terraform/my.json      # 改 aws_profile、env、console_auth_username、console_auth_password
 terraform -chdir=terraform init
 terraform -chdir=terraform apply -var-file=my.json
 terraform -chdir=terraform output                 # console_url
@@ -52,7 +52,7 @@ aws cloudformation deploy --template-file /tmp/<project>.yaml --stack-name <proj
 
 ### 2. 打开控制台
 
-浏览器打开 `console_url`，用 `user` / `password` 登录。<控制台能看什么、做什么>。
+浏览器打开 `console_url`，用 `console_auth_username` / `console_auth_password` 登录。<控制台能看什么、做什么>。
 
 ### 3. 程序连接
 
