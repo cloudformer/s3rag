@@ -8,7 +8,6 @@ terraform/*.json
 terraform/.terraform/
 terraform/.build/
 terraform/state/
-cloudformation/params.json
 # pip build output
 client/dist/
 client/build/

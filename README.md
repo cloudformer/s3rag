@@ -40,16 +40,6 @@ terraform -chdir=terraform output                 # console_url
 terraform -chdir=terraform destroy -var-file=my.json   # tear everything down
 ```
 
-**CloudFormation** (AWS CLI only; optional, from <version> — delete this block until it exists)
-
-```bash
-cp cloudformation/example-params.json cloudformation/params.json
-aws cloudformation package --template-file cloudformation/template.yaml \
-    --s3-bucket <any-bucket-you-own> --output-template-file /tmp/<project>.yaml
-aws cloudformation deploy --template-file /tmp/<project>.yaml --stack-name <project> \
-    --capabilities CAPABILITY_IAM --parameter-overrides file://cloudformation/params.json
-```
-
 ### 2. Open the console
 
 Open `console_url` in a browser, sign in with `console_auth_username` / `console_auth_password`. <what the console shows and does>.
@@ -104,7 +94,7 @@ python3 -m pytest tests -q --docker down   # the same, then stops it whatever th
 src/server/       the service: lambda_function.py (HTTP API + console), index.html
 client/           the pip package <project>: <project>/<client>.py, pyproject.toml
 terraform/        deployment, option A
-cloudformation/   deployment, option B (optional, after 0.1.0)
+cloudformation/   not supported yet (README only)
 tests/            regression suite; tests/compat/ compatibility suite, REPORT.md, TASKS.md
 ```
 

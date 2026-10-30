@@ -51,9 +51,9 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
    The same image is the first thing on the PyPI page: `client/README.md` embeds it right under the bold
    intro by absolute URL (`https://raw.githubusercontent.com/cloudformer/<project>/main/docs/architecture.svg`);
    PyPI cannot resolve relative paths.
-8. **Terraform first, every command from the repo root.** 0.1.0 ships Terraform only
-   (`terraform -chdir=terraform …`); CloudFormation is optional and comes later, producing the same
-   resources. `example.json` / `example-params.json` are committed, real variable files are gitignored. Least-privilege IAM. Destroy must work.
+8. **Terraform only, every command from the repo root** (`terraform -chdir=terraform …`). `cloudformation/`
+   holds only a README ("not supported yet"); a template comes back once the project is stable and someone
+   needs it — less to maintain. `example.json` is committed, real variable files are gitignored. Least-privilege IAM. Destroy must work.
    Everything built for a Lambda (Linux wheels, container images) is built for both arm64 and x86_64, and
    both are tested; a deployment runs one, `var.architecture`, default arm64 (~20% cheaper). Switching it
    needs no rebuild.
@@ -118,7 +118,7 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
 ```
 src/server/       lambda_function.py (shared helpers on top, routes below), index.html (console)
 client/<project>/ the pip package; pyproject.toml; README.md is the PyPI page
-terraform/ cloudformation/ (optional, after 0.1.0)
+terraform/ cloudformation/ (README only: not supported yet)
 tests/            regression; tests/compat/ compatibility (conftest = harness, test_<ref>.py = feature list,
                   REPORT.md generated, TASKS.md numbered tasks), tests/compat_report.py (edit CONFIG only)
 .github/workflows test.yml (every push), publish.yml (tags)
