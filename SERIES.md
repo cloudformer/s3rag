@@ -26,7 +26,8 @@ This (private) repository is the template every project starts from ("Use this t
 | Application | Usually runs on (idle floor / month) | Built on | Project | Only change | Status |
 |---|---|---|---|---|---|
 | Vault | EC2 (3 + ALB for HA) or HCP Vault Dedicated (~$450) | Lambda + S3 + KMS | [**lambdavault**](https://github.com/cloudformer/lambdavault) | vault CLI · Terraform provider · UI — only `VAULT_ADDR` changes | 0.1.0 on PyPI — passes: Secrets Manager is pay-per-use ($0.40 per secret), but leaving the Vault API (policies, auth methods, engines) for it is a rewrite |
-| Healthchecks (cron monitoring) | a VM or container + its database, all day | Lambda + EventBridge + s3rds (its database) | **lambdachecks** | ping URLs, API and UI — only the host changes | planned — Django 6.1.2 on s3rds' Django backend; `sendalerts` (a 2-second polling loop) becomes one EventBridge run per minute |
+| Healthchecks (cron monitoring) | a VM or container + its database, all day | Lambda + EventBridge + s3rds (its database) | [**lambdachecks**](https://github.com/cloudformer/lambdachecks) | ping URLs, API and UI — only the host changes | 0.1.0 in progress (runs on Lambda, UI login, database on s3rds) — Django 6.1.2 on s3rds' Django backend; `sendalerts` (a 2-second polling loop) becomes one EventBridge run per minute |
+| KeePass (desktop app + a synced file) | a sync service, or a hosted password manager per user | Lambda + S3 (SSE-KMS) | [**s3keepass**](https://github.com/cloudformer/s3keepass) | open the URL: a web UI over `keepass/*.kdbx`; the files stay KeePass files (KeePassXC, phone apps) | 0.1.0 in progress — Frank's own daily vault; many vaults in one bucket, web UI required |
 
 An app-serverless project ships no driver and no console of its own: the application's own clients and UI are the
 interface, and the compatibility suite compares the original (in Docker) with the project. The three checks below
