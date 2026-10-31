@@ -1,6 +1,6 @@
 # <project> — working notes for Claude
 
-This repository is one project of the **Redefine AWS Serverless** series (SERIES.md): an AWS service that
+This repository is one project of the **IdleFree** series (https://cloudformer.github.io; review notes in SERIES.md): an AWS service that
 bills while idle, rebuilt on primitives that cost ≈ $0 when idle, behind the standard client's API.
 s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in doubt, do what it does.
 
@@ -64,7 +64,9 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
    trusted publishing; the tag must equal the version in `client/pyproject.toml`. CHANGELOG per release.
 11. **English everywhere except README.zh.md.** UI text, code, comments, commit messages, CHANGELOG, TASKS —
     all English; the only Chinese file is README.zh.md (same section order as README.md). The series footer
-    links to the topic page; the series table lives only in the template repository.
+    links to the homepage, https://cloudformer.github.io (README: "Part of IdleFree"; README.zh: #zh), and
+    `[project.urls]` carries `IdleFree = "https://cloudformer.github.io/"`. The project list lives only in the
+    homepage's projects.json; new repositories get the `idlefree` topic and the homepage as their website.
 
 ## How we work
 
@@ -113,6 +115,19 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
 - Release: bump `version` in `client/pyproject.toml` and `__version__` in `client/<package>/__init__.py`,
   CHANGELOG entry, commit, `git tag vX.Y.Z && git push --tags`. Once per package Frank adds the PyPI
   trusted publisher (owner cloudformer, this repo, `publish.yml`, environment `pypi`).
+
+## A new project from this template (once)
+
+Links in the template are of two kinds only: to the project itself (`<project>` placeholders: repository, PyPI,
+changelog) and to the series (the homepage https://cloudformer.github.io and the `idlefree` topic). Replace the
+placeholders; the series links stay as they are. "Use this template" does not copy a repository's website or
+topics, so Frank runs once, from anywhere:
+
+    gh repo edit cloudformer/<project> --homepage https://cloudformer.github.io --add-topic idlefree
+
+(changes the repository's About: website and topic; prints `✓ Edited repository cloudformer/<project>`), then adds
+the project to the homepage's `projects.json` (cloudformer.github.io repository). Versions, stars and last update
+appear there by themselves.
 
 ## Layout (do not move things)
 

@@ -21,6 +21,7 @@ dependencies = []  # standard library only
 
 [project.urls]
 Homepage = "https://github.com/cloudformer/<project>"
+IdleFree = "https://cloudformer.github.io/"
 Repository = "https://github.com/cloudformer/<project>"
 Deploy = "https://github.com/cloudformer/<project>#quick-start"
 Compatibility = "https://github.com/cloudformer/<project>/blob/main/tests/compat/REPORT.md"

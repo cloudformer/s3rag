@@ -2,8 +2,9 @@
 
 AWS "serverless" services that still bill while idle, rebuilt on primitives that cost ≈ $0 when idle — and
 existing applications that normally need a server all day, run unchanged on the same primitives.
-All projects: [github.com/topics/redefine-aws-serverless](https://github.com/topics/redefine-aws-serverless).
-This (private) repository is the template every project starts from ("Use this template"); the public face of the series is the topic page, later a site.
+Public project list: **https://cloudformer.github.io** (its `projects.json` is the only list to maintain); every
+repository carries the `idlefree` topic. This (private) repository is the template every project starts from
+("Use this template"). The tables below are the internal review notes: candidates, checks and decisions.
 
 ## infra-serverless — an AWS service rebuilt, behind the client its users already have
 
