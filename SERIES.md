@@ -102,9 +102,10 @@ gh repo edit cloudformer/$NAME --add-topic redefine-aws-serverless
 gh api -X PUT repos/cloudformer/$NAME/environments/pypi >/dev/null
 gh secret set PYPI_TOKEN -R cloudformer/$NAME --body "$(awk '/password/{print $3; exit}' ~/.pypirc)"
 rm $NAME/SERIES.md
-git -C $NAME mv client/project client/$NAME && sed -i '' "s/\"project\"/\"$NAME\"/" $NAME/client/pyproject.toml
+git -C $NAME mv client/project client/$NAME && sed -i '' "s/project\.server/$NAME.server/g; s/\"project\"/\"$NAME\"/g" $NAME/client/pyproject.toml
+sed -i '' "s/project_version/${NAME}_version/g; s|modules/project|modules/$NAME|; s/module \"project\"/module \"$NAME\"/; s/module\.project/module.$NAME/g; s/\"<project>\"/\"$NAME\"/g" $NAME/terraform/variables.tf $NAME/terraform/main.tf $NAME/terraform/outputs.tf $NAME/terraform/example.json
 sed -i '' "s/^name: project-compat/name: $NAME-compat/" $NAME/tests/compat/docker-compose.yml
-sed -i '' "s|install: \"pytest boto3\"|install: \"pytest boto3 $TEST_DEPS\"|; s|compose-service: \"\"|compose-service: \"$TEST_CONTAINER\"|; s|test-env: \"\"|test-env: \"$TEST_DSN\"|" $NAME/.github/workflows/test.yml $NAME/.github/workflows/publish.yml
+sed -i '' "s|install: \"pytest boto3 idlefree-auth idlefree-ui\"|install: \"pytest boto3 idlefree-auth idlefree-ui $TEST_DEPS\"|; s|compose-service: \"\"|compose-service: \"$TEST_CONTAINER\"|; s|test-env: \"\"|test-env: \"$TEST_DSN\"|" $NAME/.github/workflows/test.yml $NAME/.github/workflows/publish.yml
 git -C $NAME add -A && git -C $NAME commit -m "from template" && git -C $NAME push
 gh run list -R cloudformer/$NAME --limit 1
 ```
@@ -115,10 +116,12 @@ gh run list -R cloudformer/$NAME --limit 1
 |---|---|---|
 | once, template repo | GitHub → redefine-aws-serverless → Settings → General | "Template repository" on (or `gh repo edit --template`) |
 | — | (nothing on pypi.org) | the block stores the account-wide API token from `~/.pypirc` as the repo secret `PYPI_TOKEN`; publish.yml uses it. Without the secret it falls back to trusted publishing, which needs a pending publisher on pypi.org |
-| per project | the clone | fill the three `with:` values in `.github/workflows/test.yml` and `publish.yml`; replace `<placeholders>` (`grep -rn "<" --include=*.md --include=*.py --include=*.tf --include=*.yml .`); fill `src/server/`, `terraform/`, `tests/compat/` — CLAUDE.md carries the principles |
+| per project | the clone | fill the three `with:` values in `.github/workflows/test.yml` and `publish.yml`; replace `<placeholders>` (`grep -rn "<" --include=*.md --include=*.py --include=*.tf --include=*.yml .`); fill `client/$NAME/server/`, `terraform/`, `tests/compat/`, `docs/console.svg` + `docs/architecture.svg` — CLAUDE.md carries the principles |
+| per project | terraform-aws-infra | create `modules/$NAME` (start from `modules/ztna`: components + `build.py` pip-installs the released package at plan time); the project's `terraform/` only calls it, pinning `${NAME}_version` |
 | per project | AWS | deploy once to get the console URL (`terraform -chdir=terraform apply -var-file=my.json`) and check the production engine's limits (e.g. the Lambda runtime's SQLite version) |
 | per release | the clone | bump the version in `client/pyproject.toml` and `client/$NAME/__init__.py`, CHANGELOG entry, commit, `git tag vX.Y.Z && git push --tags` |
 
-The workflows are referenced (`uses: cloudformer/redefine-aws-serverless-workflow/...@main`, a public repo), so CI changes are made there once. The other
-shared files (`tests/compat_report.py`, the HTTP helpers in `src/server/lambda_function.py`, the console
-shell) are copied: each project evolves on its own; improvements worth sharing are ported back here by hand.
+The workflows are referenced (`uses: cloudformer/redefine-aws-serverless-workflow/...@main`, a public repo), so CI changes are made there once. Sign-in and the
+console CSS are referenced too (the `idlefree-auth` / `idlefree-ui` packages). The other shared files
+(`tests/compat_report.py`, the shell in `client/<project>/server/lambda_function.py`, the console page shell)
+are copied: each project evolves on its own; improvements worth sharing are ported back here by hand.

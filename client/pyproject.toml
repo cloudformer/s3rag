@@ -17,16 +17,21 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
 ]
-dependencies = []  # standard library only
+dependencies = ["idlefree-auth", "idlefree-ui"]  # the series' sign-in (Basic + Cloudflare Access) and console CSS; the driver itself stays standard library
 
 [project.urls]
 Homepage = "https://github.com/cloudformer/<project>"
 IdleFree = "https://cloudformer.github.io/"
 Repository = "https://github.com/cloudformer/<project>"
-Deploy = "https://github.com/cloudformer/<project>#quick-start"
+Deploy = "https://registry.terraform.io/modules/cloudformer/infra/aws/latest/submodules/<project>"
 Compatibility = "https://github.com/cloudformer/<project>/blob/main/tests/compat/REPORT.md"
 Changelog = "https://github.com/cloudformer/<project>/blob/main/CHANGELOG.md"
 Issues = "https://github.com/cloudformer/<project>/issues"
 
 [tool.setuptools]
-packages = ["project"]     # rename the directory client/project/ to client/<project>/
+packages = ["project", "project.server"]     # rename the directory client/project/ to client/<project>/
+
+[tool.setuptools.package-data]
+# EVERY non-.py file the package ships must be listed — a missed file is a broken release
+# (pip installs fine, the Lambda then can't find it; caught only after publishing).
+"project.server" = ["index.html"]

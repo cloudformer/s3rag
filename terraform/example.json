@@ -5,11 +5,11 @@
 
   "env": "dev",
   "project_name": "<project>",
+  "project_version": "0.1.0",
 
-  "console": true,
+  "http_auth": { "enabled": true, "username": "admin", "password": "CHANGE-ME-16-chars-min" },
+  "cloudflare_auth": { "enabled": false },
   "function_url_auth": "NONE",
-  "console_auth_username": "admin",
-  "console_auth_password": "CHANGE-ME",
 
   "architecture": "arm64"
 }

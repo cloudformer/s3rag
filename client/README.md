@@ -4,6 +4,8 @@
 <built on>, a Lambda Function URL as the endpoint, ≈ $0 when idle.** Part of
 [IdleFree](https://cloudformer.github.io/).
 
+![<project> console](https://raw.githubusercontent.com/cloudformer/<project>/main/docs/console.svg)
+
 ![<project> architecture](https://raw.githubusercontent.com/cloudformer/<project>/main/docs/architecture.svg)
 
 ```bash

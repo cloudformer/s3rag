@@ -32,10 +32,14 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
    Docker vs the deployed Lambda Function URL (URL from `terraform output`, user / password from the
    variable file; once before a release). Other kinds of project decide their own.
 6. **Console: the service's usual management tool, as one page.** One Lambda Function URL serves one
-   `index.html` (no build, no framework, no external dependency); `console=false` leaves the API only.
-   Model it on the tool people already use (database → DataGrip, Redis → RedisInsight, Airflow → the
-   Airflow UI, Kafka → Kafka UI, Mongo → Compass, RabbitMQ → its management page):
-   - sign-in = the service's own user / password (HTTP Basic, the same the driver uses)
+   `index.html` (no build, no framework, no external dependency), dark theme.
+   The page lives in the package (`client/<project>/server/index.html`, next to `lambda_function.py`);
+   `idlefree_ui.CSS` is injected at import replacing the `/* idlefree-ui */` placeholder, `__VERSION__` is
+   replaced with the package version, and every inline `<script>` is sha256-hashed into the CSP (nothing the
+   server echoes can run script). Model it on the tool people already use (database → DataGrip, Redis →
+   RedisInsight, Airflow → the Airflow UI, Kafka → Kafka UI, Mongo → Compass, RabbitMQ → its management page):
+   - sign-in = `idlefree_auth`: HTTP Basic (the dialog, the same user/password the driver uses) and/or
+     Cloudflare Access (Cf-Access-Jwt-Assertion, RS256 against the team's keys) — each on or off by env
    - navigation follows the service's natural hierarchy (database → table → rows; key prefix → key → value;
      DAG → run → task; topic → partition → message)
    - a command box in the service's native language (SQL, redis commands, trigger a DAG, publish a message),
@@ -44,14 +48,19 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
      capacity units for DynamoDB; enqueued / received for SQS)
    - a history log (one line per call, timestamp, errors in red) and direct data editing (add a row,
      change a value, delete a key, re-run a task) without typing commands
-7. **Architecture image** (`docs/architecture.svg`, top of the README): your code → Lambda Function URL →
-   the primitives; label what each primitive holds, where durability happens, and the idle cost. Below it a
-   table comparing the real service and the project (idle cost, endpoint, storage, client, console,
-   compatibility %).
-   The same image is the first thing on the PyPI page: `client/README.md` embeds it right under the bold
-   intro by absolute URL (`https://raw.githubusercontent.com/cloudformer/<project>/main/docs/architecture.svg`);
-   PyPI cannot resolve relative paths.
-8. **Terraform only, every command from the repo root** (`terraform -chdir=terraform …`). `cloudformation/`
+7. **Two images, single source in `docs/`** (console first, then architecture, top of the README):
+   `docs/console.svg` — the console as it looks (dark, matching the real page); `docs/architecture.svg` —
+   your code → Lambda Function URL → the primitives; label what each primitive holds, where durability
+   happens, and the idle cost. Below them a table comparing the real service and the project.
+   The same images open the PyPI page: `client/README.md` embeds both right under the bold intro by
+   absolute URL (`https://raw.githubusercontent.com/cloudformer/<project>/main/docs/….svg`);
+   PyPI cannot resolve relative paths. Only `docs/` is maintained; every other page links or embeds.
+8. **Terraform only, every command from the repo root** (`terraform -chdir=terraform …`). The resources live
+   in a module in **terraform-aws-infra** (`modules/<project>`, published as
+   `cloudformer/infra/aws//modules/<project>`), whose `build.py` pip-installs the released package from PyPI
+   at plan time; the project's `terraform/` is a thin caller that only selects and configures it, pinning
+   `<project>_version`. Release test loop: bump the package → change `<project>_version` in the var file →
+   apply; a version change never touches the module. `cloudformation/`
    holds only a README ("not supported yet"); a template comes back once the project is stable and someone
    needs it — less to maintain. `example.json` is committed, real variable files are gitignored.
    Every Lambda gets its own log group (14 days, created by Terraform; IAM may write only there, no `CreateLogGroup`). Least-privilege IAM. Destroy must work.
@@ -60,8 +69,10 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
    needs no rebuild.
 9. **Guarantees are stated and pinned by tests.** Atomicity, durability, isolation, retry policy ("fail
    rather than duplicate a write") each get one line in the README and a test.
-10. **Release = tag.** `git tag vX.Y.Z && git push --tags` runs tests, builds `client/`, publishes to PyPI via
-   trusted publishing; the tag must equal the version in `client/pyproject.toml`. CHANGELOG per release.
+10. **Release = tag.** `git tag vX.Y.Z && git push --tags` runs tests, builds `client/`, publishes to PyPI
+   with the repo secret `PYPI_TOKEN` (set by the creation block from `~/.pypirc`; trusted publishing cannot
+   be used — PyPI refuses it through a reusable workflow). The tag must equal the version in
+   `client/pyproject.toml`. CHANGELOG per release.
 11. **English everywhere except README.zh.md.** UI text, code, comments, commit messages, CHANGELOG, TASKS —
     all English; the only Chinese file is README.zh.md (same section order as README.md). The series footer
     links to the homepage, https://cloudformer.github.io (README: "Part of IdleFree"; README.zh: #zh), and
@@ -113,8 +124,8 @@ s3rds (github.com/cloudformer/s3rds) is the reference implementation; when in do
 - The package name is read from `client/pyproject.toml` by `tests/conftest.py` (`PACKAGE`); nothing else
   hard-codes it.
 - Release: bump `version` in `client/pyproject.toml` and `__version__` in `client/<package>/__init__.py`,
-  CHANGELOG entry, commit, `git tag vX.Y.Z && git push --tags`. Once per package Frank adds the PyPI
-  trusted publisher (owner cloudformer, this repo, `publish.yml`, environment `pypi`).
+  CHANGELOG entry, commit, `git tag vX.Y.Z && git push --tags`. The repo secret `PYPI_TOKEN` (set once by
+  the creation block from `~/.pypirc`) does the upload; a missing secret is the classic first-release failure.
 
 ## A new project from this template (once)
 
@@ -132,9 +143,13 @@ appear there by themselves.
 ## Layout (do not move things)
 
 ```
-src/server/       lambda_function.py (shared helpers on top, routes below), index.html (console)
-client/<project>/ the pip package; pyproject.toml; README.md is the PyPI page
-terraform/ cloudformation/ (README only: not supported yet)
+client/<project>/ the pip package: server/ (lambda_function.py — shared shell on top, routes below;
+                  index.html — the console) and, when the project mirrors a standard client, <client>.py;
+                  pyproject.toml (packages + package-data must list the server and EVERY non-.py file);
+                  README.md is the PyPI page
+terraform/        thin caller of terraform-aws-infra//modules/<project> (pins <project>_version)
+cloudformation/   README only: not supported yet
+docs/             console.svg + architecture.svg (single source for README, README.zh, PyPI)
 tests/            regression; tests/compat/ compatibility (conftest = harness, test_<ref>.py = feature list,
                   REPORT.md generated, TASKS.md numbered tasks), tests/compat_report.py (edit CONFIG only)
 .github/workflows test.yml (every push), publish.yml (tags)

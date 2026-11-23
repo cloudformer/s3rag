@@ -7,6 +7,8 @@
 
 [中文](README.zh.md) · [compatibility report](tests/compat/REPORT.md) · [tasks](tests/compat/TASKS.md) · [changelog](CHANGELOG.md)
 
+![the console](docs/console.svg)
+
 ![architecture](docs/architecture.svg)
 
 | | <replaces> | <project> |
@@ -33,7 +35,7 @@
 **Terraform**
 
 ```bash
-cp terraform/example.json terraform/my.json      # set aws_profile, env, console_auth_username, console_auth_password
+cp terraform/example.json terraform/my.json      # set aws_profile, env, http_auth (user/password)
 terraform -chdir=terraform init
 terraform -chdir=terraform apply -var-file=my.json
 terraform -chdir=terraform output                 # console_url
@@ -42,7 +44,8 @@ terraform -chdir=terraform destroy -var-file=my.json   # tear everything down
 
 ### 2. Open the console
 
-Open `console_url` in a browser, sign in with `console_auth_username` / `console_auth_password`. <what the console shows and does>.
+Open `console_url` in a browser, sign in with the `http_auth` user / password (or through Cloudflare Access when
+`cloudflare_auth` is on). <what the console shows and does>.
 
 ### 3. Connect from code
 
@@ -91,18 +94,20 @@ python3 -m pytest tests -q --docker down   # the same, then stops it whatever th
 ## Repository layout
 
 ```
-src/server/       the service: lambda_function.py (HTTP API + console), index.html
-client/           the pip package <project>: <project>/<client>.py, pyproject.toml
-terraform/        deployment, option A
+client/           the pip package <project>: <project>/server/ (lambda_function.py + index.html — the service),
+                  <project>/<client>.py (the driver, when the project mirrors a standard client), pyproject.toml
+terraform/        deployment: a thin caller of terraform-aws-infra//modules/<project>, pinning <project>_version
 cloudformation/   not supported yet (README only)
 tests/            regression suite; tests/compat/ compatibility suite, REPORT.md, TASKS.md
+docs/             console.svg + architecture.svg — the single source, embedded here and on PyPI
 ```
 
 ## Releasing
 
 CI runs the whole suite on every push. A release is a tag: bump the version in `client/pyproject.toml` and
 `client/<project>/__init__.py`, add the CHANGELOG entry, commit, then `git tag vX.Y.Z && git push --tags`
-(tests → build → PyPI trusted publishing; the tag must equal the version).
+(tests → build → PyPI with the repo secret `PYPI_TOKEN`; the tag must equal the version). To deploy it:
+change `<project>_version` in your Terraform var file and apply — the module pip-installs that release.
 
 ---
 
