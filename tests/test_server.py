@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from conftest import FakeS3, basic
+from fakes import FakeS3, basic
 
 lf = importlib.import_module(os.environ["PACKAGE"] + ".server.lambda_function")
 
