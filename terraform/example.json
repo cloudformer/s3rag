@@ -4,8 +4,8 @@
   "assume_role_arn": "",
 
   "env": "dev",
-  "project_name": "<project>",
-  "project_version": "0.1.0",
+  "project_name": "s3rag",
+  "s3rag_version": "0.1.0",
 
   "http_auth": { "enabled": true, "username": "admin", "password": "CHANGE-ME-16-chars-min" },
   "cloudflare_auth": { "enabled": false },

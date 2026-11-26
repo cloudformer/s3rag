@@ -30,10 +30,10 @@ variable "env" {
 
 variable "project_name" {
   type    = string
-  default = "<project>"
+  default = "s3rag"
 }
 
-variable "project_version" {
+variable "s3rag_version" {
   description = "The <project> release to deploy from PyPI. Bump this per release during testing; the module is not touched."
   type        = string
   default     = "0.1.0"
