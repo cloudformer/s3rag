@@ -10,6 +10,9 @@
     <linearGradient id="gConsole" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#8C4FFF"/><stop offset="1" stop-color="#5B3BC8"/>
     </linearGradient>
+    <linearGradient id="gModel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2DB7A3"/><stop offset="1" stop-color="#15807A"/>
+    </linearGradient>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#CBD5E1"/>
     </marker>
@@ -28,50 +31,27 @@
 
   <rect width="1100" height="560" rx="18" fill="#0F172A"/>
 
-  <!-- ====================== Compute ====================== -->
+  <!-- ====================== Your side ====================== -->
   <rect x="40" y="56" width="260" height="330" rx="10" class="group" stroke-dasharray="6 5"/>
-  <text x="170" y="84" text-anchor="middle" class="gtitle">Compute</text>
+  <text x="170" y="84" text-anchor="middle" class="gtitle">Your documents &amp; questions</text>
 
-  <!-- EC2 -->
-  <g transform="translate(78,108)">
-    <rect width="70" height="70" rx="9" fill="url(#gCompute)"/>
-    <rect x="20" y="20" width="30" height="30" rx="3" class="glyph"/>
-    <path d="M27 20v-7 M35 20v-7 M43 20v-7 M27 50v7 M35 50v7 M43 50v7 M20 27h-7 M20 35h-7 M20 43h-7 M50 27h7 M50 35h7 M50 43h7" class="glyph" stroke-width="2"/>
-    <text x="35" y="90" text-anchor="middle" class="label">EC2</text>
+  <!-- documents -->
+  <g transform="translate(78,120)">
+    <rect width="70" height="70" rx="9" fill="#334155"/>
+    <path d="M24 16 h16 l8 8 v30 h-24 z" class="glyph" stroke-width="2.2"/>
+    <path d="M40 16 v8 h8 M29 36 h14 M29 44 h14" class="glyph" stroke-width="2"/>
+    <text x="35" y="90" text-anchor="middle" class="label">Docs</text>
+    <text x="35" y="105" text-anchor="middle" class="sub">md / pdf / text</text>
   </g>
-  <!-- ECS -->
-  <g transform="translate(192,108)">
-    <rect width="70" height="70" rx="9" fill="url(#gCompute)"/>
-    <path d="M35 12 L55 23.5 V46.5 L35 58 L15 46.5 V23.5 Z" class="glyph"/>
-    <rect x="26" y="29" width="8" height="8" fill="#FFFFFF"/><rect x="36" y="29" width="8" height="8" fill="#FFFFFF"/>
-    <rect x="26" y="39" width="8" height="8" fill="#FFFFFF"/><rect x="36" y="39" width="8" height="8" fill="#FFFFFF"/>
-    <text x="35" y="90" text-anchor="middle" class="label">ECS</text>
+  <!-- code -->
+  <g transform="translate(192,120)">
+    <rect width="70" height="70" rx="9" fill="#334155"/>
+    <path d="M28 25 l-10 10 10 10 M42 25 l10 10 -10 10" class="glyph" stroke-width="2.4"/>
+    <text x="35" y="90" text-anchor="middle" class="label">Your code</text>
+    <text x="35" y="105" text-anchor="middle" class="sub">POST /query</text>
   </g>
-  <!-- EKS -->
-  <g transform="translate(78,226)">
-    <rect width="70" height="70" rx="9" fill="url(#gCompute)"/>
-    <path d="M35 12 L55 23.5 V46.5 L35 58 L15 46.5 V23.5 Z" class="glyph"/>
-    <circle cx="35" cy="35" r="9" class="glyph"/>
-    <path d="M35 26v-6 M35 44v6 M26 35h-6 M44 35h6" class="glyph" stroke-width="2"/>
-    <text x="35" y="90" text-anchor="middle" class="label">EKS</text>
-  </g>
-  <!-- Lambda -->
-  <g transform="translate(192,226)">
-    <rect width="70" height="70" rx="9" fill="url(#gCompute)"/>
-    <text x="35" y="50" text-anchor="middle" font-size="40" font-weight="700" fill="#FFFFFF">λ</text>
-    <text x="35" y="90" text-anchor="middle" class="label">Lambda</text>
-  </g>
-
-  <text x="170" y="350" text-anchor="middle" class="sub">your code, anywhere it runs</text>
-  <text x="170" y="368" text-anchor="middle" class="sub"><tspan text-decoration="line-through" fill="#64748B">import &lt;client&gt;</tspan>  →  <tspan fill="#F1F5F9" font-weight="600">from &lt;project&gt; import &lt;client&gt;</tspan></text>
-
-  <!-- compute -> endpoint -->
-  <path d="M300 220 L 418 220" class="edge" marker-end="url(#arrow)"/>
-  <rect x="304" y="186" width="110" height="24" rx="5" class="callout"/>
-  <text x="359" y="203" text-anchor="middle" class="callout-text">1  HTTPS · &lt;client&gt;</text>
-
-  <!-- browser (outside) -->
-  <g transform="translate(135,430)">
+  <!-- browser -->
+  <g transform="translate(135,256)">
     <rect width="70" height="52" rx="7" fill="#334155"/>
     <rect x="6" y="6" width="58" height="8" rx="2" fill="#CBD5E1"/>
     <circle cx="11" cy="10" r="2" fill="#F87171"/><circle cx="17" cy="10" r="2" fill="#FBBF24"/><circle cx="23" cy="10" r="2" fill="#34D399"/>
@@ -79,12 +59,19 @@
     <rect x="11" y="23" width="26" height="4" rx="1.5" fill="#94A3B8"/><rect x="11" y="31" width="48" height="4" rx="1.5" fill="#CBD5E1"/><rect x="11" y="39" width="36" height="4" rx="1.5" fill="#CBD5E1"/>
     <text x="35" y="70" text-anchor="middle" class="label">Browser</text>
   </g>
-  <path d="M205 456 L 418 456" class="edge" marker-end="url(#arrow)"/>
 
-  <!-- ====================== s3rds ====================== -->
+  <text x="170" y="350" text-anchor="middle" class="sub">no vector database to run, no subscription:</text>
+  <text x="170" y="368" text-anchor="middle" class="sub"><tspan text-decoration="line-through" fill="#64748B">OpenSearch · Pinecone</tspan>  →  <tspan fill="#F1F5F9" font-weight="600">an index file on S3</tspan></text>
+
+  <!-- your side -> endpoint -->
+  <path d="M300 220 L 418 220" class="edge" marker-end="url(#arrow)"/>
+  <rect x="304" y="186" width="110" height="24" rx="5" class="callout"/>
+  <text x="359" y="203" text-anchor="middle" class="callout-text">1  HTTPS · query</text>
+
+  <!-- ====================== s3rag ====================== -->
   <rect x="360" y="40" width="700" height="490" rx="12" class="group" stroke="#CBD5E1" stroke-width="1.6"/>
-  <text x="380" y="70" class="gtitle" font-size="18" fill="#F8FAFC">&lt;project&gt;: a serverless &lt;replaces&gt;</text>
-  <text x="380" y="88" class="sub">Lambda URL as the endpoint · &lt;built on&gt; · ≈ $0 when idle</text>
+  <text x="380" y="70" class="gtitle" font-size="18" fill="#F8FAFC">s3rag: a serverless RAG</text>
+  <text x="380" y="88" class="sub">Lambda URL as the endpoint · S3 + Bedrock · ≈ $0 when idle</text>
 
   <!-- Backend -->
   <rect x="400" y="110" width="400" height="230" rx="9" class="group"/>
@@ -94,17 +81,26 @@
     <rect width="86" height="86" rx="10" fill="url(#gCompute)"/>
     <text x="43" y="62" text-anchor="middle" font-size="50" font-weight="700" fill="#FFFFFF">λ</text>
     <text x="43" y="108" text-anchor="middle" class="label">Lambda: Endpoint</text>
-    <text x="43" y="124" text-anchor="middle" class="sub">user / password · &lt;engine&gt;</text>
+    <text x="43" y="124" text-anchor="middle" class="sub">loads the index in memory</text>
   </g>
 
   <g transform="translate(540,160)">
     <rect width="22" height="22" rx="4" class="callout"/><text x="11" y="16" text-anchor="middle" class="callout-text">2</text>
-    <text x="30" y="16" class="step">&lt;what the Lambda does with a request&gt;</text>
+    <text x="30" y="16" class="step">pull the index file from S3, keep it warm</text>
     <rect y="44" width="22" height="22" rx="4" class="callout"/><text x="11" y="60" text-anchor="middle" class="callout-text">3</text>
-    <text x="30" y="60" class="step">&lt;how writes are made atomic&gt;</text>
+    <text x="30" y="60" class="step">embed the question (Bedrock), search in memory</text>
     <rect y="88" width="22" height="22" rx="4" class="callout"/><text x="11" y="104" text-anchor="middle" class="callout-text">4</text>
-    <text x="30" y="104" class="step">&lt;how errors map to the client's&gt;</text>
-    <text x="30" y="120" class="step">&lt;durability: when is it safe&gt;</text>
+    <text x="30" y="104" class="step">answer with Bedrock, cite the source chunks —</text>
+    <text x="30" y="120" class="step">pay per query, nothing runs between questions</text>
+  </g>
+
+  <!-- Bedrock -->
+  <g transform="translate(652,236)">
+    <rect width="70" height="70" rx="9" fill="url(#gModel)"/>
+    <circle cx="35" cy="30" r="11" class="glyph" stroke-width="2.4"/>
+    <path d="M35 41 v10 M24 30 h-8 M54 30 h-8 M27 22 l-6 -6 M43 22 l6 -6" class="glyph" stroke-width="2"/>
+    <text x="35" y="90" text-anchor="middle" class="label">Bedrock</text>
+    <text x="35" y="105" text-anchor="middle" class="sub">embeddings · answers</text>
   </g>
 
   <!-- Storage -->
@@ -114,8 +110,8 @@
     <rect width="86" height="86" rx="10" fill="url(#gStorage)"/>
     <rect x="18" y="20" width="50" height="46" rx="5" class="glyph" stroke-width="3"/>
     <path d="M18 35 h50" class="glyph" stroke-width="2.4"/>
-    <text x="43" y="108" text-anchor="middle" class="label">&lt;built on&gt;: Storage</text>
-    <text x="43" y="124" text-anchor="middle" class="sub">&lt;what one item holds&gt;</text>
+    <text x="43" y="108" text-anchor="middle" class="label">S3: Storage</text>
+    <text x="43" y="124" text-anchor="middle" class="sub">documents/ + one index file</text>
     <text x="43" y="138" text-anchor="middle" class="sub">pay per request</text>
     <text x="43" y="154" text-anchor="middle" class="sub">durable · multi-AZ</text>
   </g>
@@ -136,8 +132,8 @@
   <text x="482" y="372" class="sub">same HTTP API</text>
 
   <rect x="540" y="412" width="22" height="22" rx="4" class="callout"/><text x="551" y="428" text-anchor="middle" class="callout-text">5</text>
-  <text x="570" y="428" class="step">built-in console: &lt;what it browses&gt;, &lt;what it runs&gt;,</text>
-  <text x="570" y="444" class="step">server time and backend action per call — like &lt;their tool&gt;, nothing to install</text>
+  <text x="570" y="428" class="step">built-in console: drop documents in, rebuild the index on demand,</text>
+  <text x="570" y="444" class="step">ask questions and read cited answers — nothing to install</text>
 
-  <text x="710" y="512" text-anchor="middle" class="sub">&lt;the one-line guarantee summary&gt;</text>
+  <text x="710" y="512" text-anchor="middle" class="sub">the vector index is a file on S3, loaded on demand — no database runs while you are not asking</text>
 </svg>
